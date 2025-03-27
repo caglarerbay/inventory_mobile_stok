@@ -11,7 +11,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _username;
   String? _email;
-  String? _accessCode;
+  // Daily access code alanı kaldırıldı.
   String? _password;
   String? _password2;
   bool _isLoading = false;
@@ -27,39 +27,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _errorMessage = null;
     });
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/register/'); 
-    // Yukarıdaki URL, Django tarafında /api/register/ endpoint'ine işaret etmeli.
-
+    final url = Uri.parse('http://127.0.0.1:8000/api/register/');
+    // Uygun base URL'yi kullanmayı unutmayın.
     try {
       final response = await http.post(
         url,
         headers: {
-          'Accept': 'application/json',      // JSON formatı talep ediyoruz
-          'Content-Type': 'application/json' // JSON gönderiyoruz
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: json.encode({
           'username': _username,
           'email': _email,
-          'access_code': _accessCode,
+          // 'access_code' alanı kaldırıldı.
           'password': _password,
-          'password2': _password2, // Opsiyonel doğrulama
+          'password2': _password2,
         }),
       );
 
       if (response.statusCode == 201) {
-        // Kayıt başarılı
         setState(() {
           _isLoading = false;
         });
-        // İsterseniz başka bir ekrana yönlendirin veya mesaj gösterin
         Navigator.pop(context);
       } else {
-        // Hata durumu
         setState(() {
           _isLoading = false;
-          // Yanıtı UTF-8 decode ederek Türkçe karakter sorununu önlüyoruz
           final decoded = json.decode(utf8.decode(response.bodyBytes));
-          // Örneğin {"detail": "Geçersiz erişim kodu."}
           _errorMessage = decoded['detail'] ?? 'Bilinmeyen hata.';
         });
       }
@@ -74,66 +68,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Kayıt Ol'),
-      ),
+      appBar: AppBar(title: Text('Kayıt Ol')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    // Hata mesajı
-                    if (_errorMessage != null)
-                      Text(
-                        _errorMessage!,
-                        style: TextStyle(color: Colors.red),
+        child:
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : Form(
+                  key: _formKey,
+                  child: ListView(
+                    children: [
+                      if (_errorMessage != null)
+                        Text(
+                          _errorMessage!,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Kullanıcı Adı'),
+                        validator:
+                            (value) =>
+                                value!.isEmpty ? 'Kullanıcı adı giriniz' : null,
+                        onSaved: (value) => _username = value,
                       ),
-                    // Kullanıcı adı
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Kullanıcı Adı'),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Kullanıcı adı giriniz' : null,
-                      onSaved: (value) => _username = value,
-                    ),
-                    // Email
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Email'),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Email giriniz' : null,
-                      onSaved: (value) => _email = value,
-                    ),
-                    // 10 haneli kod
-                    TextFormField(
-                      decoration: InputDecoration(labelText: '10 Haneli Kod'),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Kod giriniz' : null,
-                      onSaved: (value) => _accessCode = value,
-                    ),
-                    // Şifre
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Şifre'),
-                      obscureText: true,
-                      validator: (value) =>
-                          value!.isEmpty ? 'Şifre giriniz' : null,
-                      onSaved: (value) => _password = value,
-                    ),
-                    // Şifre (Tekrar) - Opsiyonel
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Şifre (Tekrar)'),
-                      obscureText: true,
-                      onSaved: (value) => _password2 = value,
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      child: Text('Kayıt Ol'),
-                    ),
-                  ],
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Email'),
+                        validator:
+                            (value) => value!.isEmpty ? 'Email giriniz' : null,
+                        onSaved: (value) => _email = value,
+                      ),
+                      // Daily code alanı kaldırıldı.
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Şifre'),
+                        obscureText: true,
+                        validator:
+                            (value) => value!.isEmpty ? 'Şifre giriniz' : null,
+                        onSaved: (value) => _password = value,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Şifre (Tekrar)',
+                        ),
+                        obscureText: true,
+                        onSaved: (value) => _password2 = value,
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _submitForm,
+                        child: Text('Kayıt Ol'),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
       ),
     );
   }

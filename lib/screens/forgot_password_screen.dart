@@ -10,7 +10,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _username;
-  String? _accessCode;
+  // Daily code alanı kaldırıldı.
   String? _newPassword;
   String? _newPassword2;
   bool _isLoading = false;
@@ -25,9 +25,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _errorMessage = null;
     });
 
-    final url = Uri.parse(
-      'http://127.0.0.1:8000/api/forgot_password/',
-    ); // Django endpoint
+    final url = Uri.parse('http://127.0.0.1:8000/api/forgot_password/');
     try {
       final response = await http.post(
         url,
@@ -37,7 +35,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         },
         body: json.encode({
           'username': _username,
-          'access_code': _accessCode,
+          // 'access_code' alanı kaldırıldı.
           'new_password': _newPassword,
           'new_password2': _newPassword2,
         }),
@@ -47,7 +45,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         setState(() {
           _isLoading = false;
         });
-        // Şifre güncellendi, login ekranına dönebiliriz
         showDialog(
           context: context,
           builder:
@@ -57,7 +54,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(context); // AlertDialog kapanır
+                      Navigator.pop(context);
                       Navigator.pushReplacementNamed(context, '/login');
                     },
                     child: Text('Tamam'),
@@ -105,12 +102,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 value!.isEmpty ? 'Kullanıcı adı giriniz' : null,
                         onSaved: (value) => _username = value,
                       ),
-                      TextFormField(
-                        decoration: InputDecoration(labelText: '10 Haneli Kod'),
-                        validator:
-                            (value) => value!.isEmpty ? 'Kod giriniz' : null,
-                        onSaved: (value) => _accessCode = value,
-                      ),
+                      // Daily code alanı kaldırıldı.
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Yeni Şifre'),
                         obscureText: true,
