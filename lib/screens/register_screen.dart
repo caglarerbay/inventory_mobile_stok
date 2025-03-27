@@ -27,7 +27,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _errorMessage = null;
     });
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/register/');
+    final url = Uri.parse(
+      'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/register/',
+    );
     // Uygun base URL'yi kullanmayı unutmayın.
     try {
       final response = await http.post(

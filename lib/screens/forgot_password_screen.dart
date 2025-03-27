@@ -25,7 +25,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _errorMessage = null;
     });
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/forgot_password/');
+    final url = Uri.parse(
+      'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/register/',
+    );
     try {
       final response = await http.post(
         url,
