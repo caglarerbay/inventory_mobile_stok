@@ -115,6 +115,18 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             },
             child: Text('Min Limit Ayarla'),
           ),
+          SizedBox(height: 8),
+          // Yeni: Push Bildirim Gönder butonu
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/push_notification',
+                arguments: {"token": _token, "staff_flag": _isStaff},
+              );
+            },
+            child: Text('Push Bildirim Gönder'),
+          ),
         ],
       ),
     );

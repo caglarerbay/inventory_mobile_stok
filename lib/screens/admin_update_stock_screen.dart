@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import '../services/api_constants.dart';
+// Barkod tarama paketi ekleniyor:
+import 'package:barcode_scan2/barcode_scan2.dart';
 
 class AdminUpdateStockScreen extends StatefulWidget {
   @override
@@ -113,6 +115,25 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
     }
   }
 
+  // Barkod tarama fonksiyonu ekleniyor:
+  Future<void> _scanBarcode() async {
+    try {
+      var result = await BarcodeScanner.scan();
+      if (result.type == ResultType.Barcode) {
+        String scannedCode = result.rawContent;
+        if (scannedCode.isNotEmpty) {
+          setState(() {
+            _searchController.text = scannedCode;
+          });
+          // Tarama sonrası otomatik arama tetiklenebilir:
+          _searchProducts();
+        }
+      }
+    } catch (e) {
+      print("Barkod tarama hatası: $e");
+    }
+  }
+
   // 4) Güncelle diyaloğu
   void _showUpdateDialog(int productId) {
     int arrivedQty = 1;
@@ -200,13 +221,23 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Arama TextField
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: "Ürün Kodu / Adı",
-                border: OutlineInputBorder(),
-              ),
+            // Arama kutusu ve barkod tarama butonu
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: "Ürün Kodu / Adı",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: _scanBarcode,
+                ),
+              ],
             ),
             SizedBox(height: 8),
 
@@ -225,7 +256,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
                         itemBuilder: (context, index) {
                           final product = _searchResults[index];
                           // product = { "id":..., "part_code":"...", "name":"...", "quantity":..., "car_stocks":[...] }
-
                           return ListTile(
                             title: Text(
                               '${product["name"]} (Kod: ${product["part_code"]})',

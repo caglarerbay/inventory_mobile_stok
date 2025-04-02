@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/xml/standalone_badge.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/xml/standalone_badge.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/xml/standalone_badge_gravity_top_start.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/xml/standalone_badge_gravity_top_start.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/xml/standalone_badge_gravity_bottom_start.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/xml/standalone_badge_gravity_bottom_start.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/xml/standalone_badge_gravity_bottom_end.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/xml/standalone_badge_gravity_bottom_end.xml"
+    }
+]

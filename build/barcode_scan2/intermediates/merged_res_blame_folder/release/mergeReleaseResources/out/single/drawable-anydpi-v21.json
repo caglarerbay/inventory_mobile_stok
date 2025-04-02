@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/design_ic_visibility_off.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/drawable-anydpi-v21/design_ic_visibility_off.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/design_ic_visibility.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/drawable-anydpi-v21/design_ic_visibility.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/ic_call_decline.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-core-1.13.1-13:/drawable-anydpi-v21/ic_call_decline.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/ic_call_answer_video_low.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-core-1.13.1-13:/drawable-anydpi-v21/ic_call_answer_video_low.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/ic_call_answer_low.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-core-1.13.1-13:/drawable-anydpi-v21/ic_call_answer_low.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/ic_call_answer_video.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-core-1.13.1-13:/drawable-anydpi-v21/ic_call_answer_video.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/ic_call_answer.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-core-1.13.1-13:/drawable-anydpi-v21/ic_call_answer.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/drawable-anydpi-v21/ic_call_decline_low.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-core-1.13.1-13:/drawable-anydpi-v21/ic_call_decline_low.xml"
+    }
+]

@@ -10,7 +10,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _username;
-  // Daily code alanı kaldırıldı.
+  String? _accessCode; // Erişim kodu alanı ekleniyor
   String? _newPassword;
   String? _newPassword2;
   bool _isLoading = false;
@@ -26,8 +26,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     final url = Uri.parse(
-      'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/register/',
+      'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/forgot_password/',
     );
+
     try {
       final response = await http.post(
         url,
@@ -37,7 +38,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         },
         body: json.encode({
           'username': _username,
-          // 'access_code' alanı kaldırıldı.
+          'access_code': _accessCode, // Gönderilecek erişim kodu
           'new_password': _newPassword,
           'new_password2': _newPassword2,
         }),
@@ -104,7 +105,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 value!.isEmpty ? 'Kullanıcı adı giriniz' : null,
                         onSaved: (value) => _username = value,
                       ),
-                      // Daily code alanı kaldırıldı.
+                      // Daily access code alanı ekleniyor
+                      TextFormField(
+                        decoration: InputDecoration(labelText: '10 Haneli Kod'),
+                        validator:
+                            (value) =>
+                                value!.isEmpty ? 'Erişim kodu giriniz' : null,
+                        onSaved: (value) => _accessCode = value,
+                      ),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Yeni Şifre'),
                         obscureText: true,

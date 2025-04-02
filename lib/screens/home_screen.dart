@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_constants.dart';
+// Barkod tarama paketi ekleniyor:
+import 'package:barcode_scan2/barcode_scan2.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -26,12 +29,22 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     // Argümanları güvenli şekilde almak için post frame callback kullanıyoruz.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Önce route argümanlarını kontrol ediyoruz.
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is Map) {
         _isStaff = args["staff_flag"] ?? false;
         _token = args["token"];
         print("Token from arguments: $_token");
+      }
+      // Eğer token bulunamazsa SharedPreferences'tan oku.
+      if (_token == null || _token!.isEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        _token = prefs.getString('token');
+        print("Token from SharedPreferences: $_token");
+      }
+      // Token mevcutsa kullanıcı listesini çek.
+      if (_token != null && _token!.isNotEmpty) {
         _fetchUserList();
       }
     });
@@ -115,6 +128,25 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print("Kullanıcı listesi alınırken hata: $e");
+    }
+  }
+
+  // Barkod tarama fonksiyonu ekleniyor:
+  Future<void> _scanBarcode() async {
+    try {
+      var result = await BarcodeScanner.scan();
+      if (result.type == ResultType.Barcode) {
+        String scannedCode = result.rawContent;
+        if (scannedCode.isNotEmpty) {
+          setState(() {
+            _searchController.text = scannedCode;
+          });
+          // İsteğe bağlı: tarama sonrası otomatik arama tetiklenebilir
+          _searchProduct();
+        }
+      }
+    } catch (e) {
+      print("Barkod tarama hatası: $e");
     }
   }
 
@@ -356,7 +388,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Diğer navigasyon fonksiyonları
-  void _logout() {
+  void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('staffFlag');
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -397,6 +432,12 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text('Ana Ekran'),
         actions: [
           IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.pushNamed(context, '/notification_history');
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.exit_to_app),
             tooltip: 'Çıkış Yap',
             onPressed: _logout,
@@ -407,13 +448,23 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Arama kutusu
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Ürün Kodu/Adı',
-                border: OutlineInputBorder(),
-              ),
+            // Arama kutusu ve barkod tarama butonu
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Ürün Kodu/Adı',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: _scanBarcode,
+                ),
+              ],
             ),
             SizedBox(height: 8),
             // Kişisel Stok butonu

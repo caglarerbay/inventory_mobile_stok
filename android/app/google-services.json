@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "13918364762",
+    "project_id": "stoktakippush",
+    "storage_bucket": "stoktakippush.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13918364762:android:f0c3b0a099d3aeef1fa463",
+        "android_client_info": {
+          "package_name": "com.example.inventory_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOXNdYOAXLkVH89k40rmESNpNud2FkDho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

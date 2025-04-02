@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -17,6 +19,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final authService = AuthService();
 
+  // _LoginScreenState sınıfı içinde, _submitForm() metodundan önce ekleyin:
+  Future<void> _registerAndSendToken() async {
+    // Firebase Messaging'den token'ı alıyoruz:
+    String? token = await FirebaseMessaging.instance.getToken();
+    print("Device Token: $token");
+
+    if (token != null) {
+      // SharedPreferences'ten username'i alıyoruz:
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString("username") ?? "";
+      if (username.isEmpty) {
+        print("Username bulunamadı, token gönderilemedi.");
+        return;
+      }
+      // Backend URL'si: (Üretim ortamındaki URL'yi kullanın.)
+      final url = Uri.parse(
+        "http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/save_device_token/",
+      );
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"device_token": token, "username": username}),
+      );
+      print("Token gönderildi, status: ${response.statusCode}");
+      print("Sunucu cevabı: ${response.body}");
+    }
+  }
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
@@ -29,13 +59,17 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final data = await authService.login(_username!, _password!);
 
-      // data: {
-      //   "detail": "Giriş başarılı.",
-      //   "staff_flag": true/false,
-      //   "token": "..."
-      // }
+      // data örneği:
+      // { "detail": "Giriş başarılı.", "staff_flag": true/false, "token": "..." }
       final bool staffFlag = data['staff_flag'] ?? false;
       final String? token = data['token'];
+
+      // SharedPreferences ile token'ı kaydet
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token ?? '');
+      await prefs.setBool('staffFlag', staffFlag);
+      await prefs.setString('username', _username!);
+      await _registerAndSendToken();
 
       setState(() {
         _isLoading = false;

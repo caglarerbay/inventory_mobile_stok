@@ -11,14 +11,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _username;
   String? _email;
-  // Daily access code alanı kaldırıldı.
+  String? _accessCode; // Erişim kodu alanı
   String? _password;
   String? _password2;
   bool _isLoading = false;
   String? _errorMessage;
 
   Future<void> _submitForm() async {
-    // Form doğrulaması
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
@@ -30,7 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final url = Uri.parse(
       'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/register/',
     );
-    // Uygun base URL'yi kullanmayı unutmayın.
+
     try {
       final response = await http.post(
         url,
@@ -41,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         body: json.encode({
           'username': _username,
           'email': _email,
-          // 'access_code' alanı kaldırıldı.
+          'access_code': _accessCode, // Gönderilen erişim kodu
           'password': _password,
           'password2': _password2,
         }),
@@ -98,7 +97,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             (value) => value!.isEmpty ? 'Email giriniz' : null,
                         onSaved: (value) => _email = value,
                       ),
-                      // Daily code alanı kaldırıldı.
+                      // Daily access code alanı ekleniyor
+                      TextFormField(
+                        decoration: InputDecoration(labelText: '10 Haneli Kod'),
+                        validator:
+                            (value) =>
+                                value!.isEmpty ? 'Erişim kodu giriniz' : null,
+                        onSaved: (value) => _accessCode = value,
+                      ),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Şifre'),
                         obscureText: true,

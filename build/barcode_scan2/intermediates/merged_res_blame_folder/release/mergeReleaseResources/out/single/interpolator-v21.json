@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/interpolator-v21/mtrl_linear_out_slow_in.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/interpolator-v21/mtrl_linear_out_slow_in.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/interpolator-v21/mtrl_fast_out_slow_in.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/interpolator-v21/mtrl_fast_out_slow_in.xml"
+    },
+    {
+        "merged": "de.mintware.barcode_scan.barcode_scan2-release-35:/interpolator-v21/mtrl_fast_out_linear_in.xml",
+        "source": "de.mintware.barcode_scan.barcode_scan2-material-1.1.0-19:/interpolator-v21/mtrl_fast_out_linear_in.xml"
+    }
+]

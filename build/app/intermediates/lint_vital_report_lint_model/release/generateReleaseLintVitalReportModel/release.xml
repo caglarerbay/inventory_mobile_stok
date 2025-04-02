@@ -9,6 +9,7 @@
     proguardFiles="C:\Users\LENOVO\stokproje\inventory_mobile\build\app\intermediates\default_proguard_files\global\proguard-android-optimize.txt-8.7.0;C:\src\flutter\packages\flutter_tools\gradle\flutter_proguard_rules.pro;proguard-rules.pro"
     partialResultsDir="C:\Users\LENOVO\stokproje\inventory_mobile\build\app\intermediates\lint_vital_partial_results\release\lintVitalAnalyzeRelease\out">
   <buildFeatures
+      coreLibraryDesugaring="true"
       namespacing="REQUIRED"/>
   <sourceProviders>
     <sourceProvider
@@ -31,7 +32,7 @@
       type="MAIN"
       applicationId="com.example.inventory_mobile"
       generatedSourceFolders="C:\Users\LENOVO\stokproje\inventory_mobile\build\app\generated\ap_generated_sources\release\out"
-      generatedResourceFolders="C:\Users\LENOVO\stokproje\inventory_mobile\build\app\generated\res\resValues\release"
-      desugaredMethodsFiles="C:\Users\LENOVO\.gradle\caches\8.10.2\transforms\a44e4045de5ee54377b09e148af5b6c6\transformed\D8BackportedDesugaredMethods.txt">
+      generatedResourceFolders="C:\Users\LENOVO\stokproje\inventory_mobile\build\app\generated\res\google-services\release;C:\Users\LENOVO\stokproje\inventory_mobile\build\app\generated\res\resValues\release"
+      desugaredMethodsFiles="C:\Users\LENOVO\.gradle\caches\8.10.2\transforms\b4bbf5c625c05c6372e3884940f47c59\transformed\desugar_jdk_libs_configuration-2.1.4-desugar-lint.txt;C:\Users\LENOVO\.gradle\caches\8.10.2\transforms\d7957797529b5723a5720d43e12a2440\transformed\D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

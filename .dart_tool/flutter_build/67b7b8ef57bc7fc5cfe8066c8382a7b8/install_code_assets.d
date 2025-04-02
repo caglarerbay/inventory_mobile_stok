@@ -1,1 +1,0 @@
- C:\\Users\\LENOVO\\stokproje\\inventory_mobile\\.dart_tool\\flutter_build\\67b7b8ef57bc7fc5cfe8066c8382a7b8\\native_assets.json: 
