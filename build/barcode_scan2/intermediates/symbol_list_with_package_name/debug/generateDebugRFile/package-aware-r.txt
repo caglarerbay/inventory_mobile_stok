@@ -1,1 +1,0 @@
-de.mintware.barcode_scan
