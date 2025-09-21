@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import '../services/api_constants.dart';
-// Barkod tarama paketi ekleniyor:
 import 'package:barcode_scan2/barcode_scan2.dart';
 
 class AdminUpdateStockScreen extends StatefulWidget {
@@ -14,21 +13,14 @@ class AdminUpdateStockScreen extends StatefulWidget {
 class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
   String? _token;
   bool _isStaff = false;
-
-  // Arama metni kontrolü
   final _searchController = TextEditingController();
   Timer? _debounce;
-
-  // Arama sonuç listesi
   List<dynamic> _searchResults = [];
-
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-
-    // 1) arguments'tan token, staff_flag al
     Future.microtask(() {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is Map) {
@@ -40,8 +32,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
         });
       }
     });
-
-    // 2) SearchController dinle
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -60,10 +50,9 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
     });
   }
 
-  // 3) Arama isteği
   Future<void> _searchProducts() async {
     final query = _searchController.text.trim();
-    if (query.isEmpty) {
+    if (query.length < 5) {
       setState(() {
         _searchResults.clear();
         _errorMessage = null;
@@ -115,7 +104,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
     }
   }
 
-  // Barkod tarama fonksiyonu ekleniyor:
   Future<void> _scanBarcode() async {
     try {
       var result = await BarcodeScanner.scan();
@@ -125,7 +113,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
           setState(() {
             _searchController.text = scannedCode;
           });
-          // Tarama sonrası otomatik arama tetiklenebilir:
           _searchProducts();
         }
       }
@@ -134,7 +121,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
     }
   }
 
-  // 4) Güncelle diyaloğu
   void _showUpdateDialog(int productId) {
     int arrivedQty = 1;
     showDialog(
@@ -168,7 +154,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
     );
   }
 
-  // 5) admin_update_stock isteği
   Future<void> _updateStock(int productId, int arrivedQty) async {
     if (_token == null || _token!.isEmpty) {
       setState(() {
@@ -198,7 +183,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
         setState(() {
           _errorMessage = "Başarılı: ${data['detail']}";
         });
-        // İsteğe bağlı, güncel listeyi yeniden arayabilirsiniz
         _searchProducts();
       } else {
         final data = json.decode(utf8.decode(response.bodyBytes));
@@ -221,7 +205,7 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Arama kutusu ve barkod tarama butonu
+            // Arama kutusu ve barkod tarama butonu + 5 karakter uyarısı
             Row(
               children: [
                 Expanded(
@@ -239,14 +223,19 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
                 ),
               ],
             ),
+            if (_searchController.text.trim().isNotEmpty &&
+                _searchController.text.trim().length < 5)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, top: 4),
+                child: Text(
+                  'Lütfen en az 5 karakter girin',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             SizedBox(height: 8),
-
-            // Hata mesajı
             if (_errorMessage != null)
               Text(_errorMessage!, style: TextStyle(color: Colors.red)),
             SizedBox(height: 8),
-
-            // Sonuç listesi
             Expanded(
               child:
                   _searchResults.isEmpty
@@ -255,7 +244,6 @@ class _AdminUpdateStockScreenState extends State<AdminUpdateStockScreen> {
                         itemCount: _searchResults.length,
                         itemBuilder: (context, index) {
                           final product = _searchResults[index];
-                          // product = { "id":..., "part_code":"...", "name":"...", "quantity":..., "car_stocks":[...] }
                           return ListTile(
                             title: Text(
                               '${product["name"]} (Kod: ${product["part_code"]})',

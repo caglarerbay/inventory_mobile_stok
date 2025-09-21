@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:inventory_mobile/services/api_constants.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   @override
@@ -25,9 +26,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _errorMessage = null;
     });
 
-    final url = Uri.parse(
-      'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/forgot_password/',
-    );
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/forgot_password/');
 
     try {
       final response = await http.post(

@@ -39,6 +39,13 @@ dependencies:
   firebase_messaging: ^14.0.0
   flutter_local_notifications: ^19.0.0
   barcode_scan2: ^4.1.7
+  dio: ^5.0.0
+
+  flutter_keyboard_visibility: ^6.0.0
+
+dependency_overrides:
+  # flutter_typeahead’ın istediği 5.x -> 6.x’e override
+  flutter_keyboard_visibility: ^6.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -64,8 +71,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/nuk_logo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

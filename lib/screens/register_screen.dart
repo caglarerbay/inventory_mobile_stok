@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:inventory_mobile/services/api_constants.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -26,9 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _errorMessage = null;
     });
 
-    final url = Uri.parse(
-      'http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/register/',
-    );
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/register/');
 
     try {
       final response = await http.post(

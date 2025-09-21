@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../services/api_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -34,9 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
       // Backend URL'si: (Üretim ortamındaki URL'yi kullanın.)
-      final url = Uri.parse(
-        "http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/save_device_token/",
-      );
+      final url = Uri.parse('${ApiConstants.baseUrl}/api/save_device_token/');
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import '../services/api_constants.dart';
 
 class AdminMinLimitScreen extends StatefulWidget {
@@ -14,11 +16,12 @@ class _AdminMinLimitScreenState extends State<AdminMinLimitScreen> {
   List<dynamic> _products = [];
   String _searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    // Argümanları almak için post frame callback kullanıyoruz.
+    _searchController.addListener(_onSearchChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is Map) {
@@ -26,16 +29,39 @@ class _AdminMinLimitScreenState extends State<AdminMinLimitScreen> {
         _fetchProducts();
       }
     });
-    _searchController.addListener(() {
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      final q = _searchController.text.trim();
       setState(() {
-        _searchQuery = _searchController.text.trim().toLowerCase();
+        _searchQuery = q.toLowerCase();
       });
     });
   }
 
+  Future<void> _scanBarcode() async {
+    try {
+      var result = await BarcodeScanner.scan();
+      if (result.type == ResultType.Barcode && result.rawContent.isNotEmpty) {
+        _searchController.text = result.rawContent;
+      }
+    } catch (e) {
+      print("Barkod tarama hatası: $e");
+    }
+  }
+
   Future<void> _fetchProducts() async {
     if (_token == null || _token!.isEmpty) return;
-    // Ürün listesini döndüren endpoint (örneğin: /api/products/)
     final url = Uri.parse('${ApiConstants.baseUrl}/api/products/');
     final headers = {
       'Content-Type': 'application/json',
@@ -127,14 +153,16 @@ class _AdminMinLimitScreenState extends State<AdminMinLimitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Filtrelenmiş ürün listesi: Ürün adı veya part_code arama sorgusuna uyuyorsa göster.
     final filteredProducts =
-        _products.where((product) {
-          final name = (product['name'] ?? "").toString().toLowerCase();
-          final partCode =
-              (product['part_code'] ?? "").toString().toLowerCase();
-          return name.contains(_searchQuery) || partCode.contains(_searchQuery);
-        }).toList();
+        _searchQuery.length < 5
+            ? []
+            : _products.where((product) {
+              final name = (product['name'] ?? "").toString().toLowerCase();
+              final partCode =
+                  (product['part_code'] ?? "").toString().toLowerCase();
+              return name.contains(_searchQuery) ||
+                  partCode.contains(_searchQuery);
+            }).toList();
 
     return Scaffold(
       appBar: AppBar(title: Text("Min Limit Ayarla")),
@@ -142,14 +170,32 @@ class _AdminMinLimitScreenState extends State<AdminMinLimitScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Arama kutusu
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: "Ürün Ara (Adı veya Kod)",
-                border: OutlineInputBorder(),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: "Ürün Ara (Adı veya Kod)",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: _scanBarcode,
+                ),
+              ],
             ),
+            if (_searchController.text.trim().isNotEmpty &&
+                _searchController.text.trim().length < 5)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, top: 4),
+                child: Text(
+                  'Lütfen en az 5 karakter girin',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             SizedBox(height: 8),
             _errorMessage != null
                 ? Text(_errorMessage!, style: TextStyle(color: Colors.red))
@@ -157,7 +203,13 @@ class _AdminMinLimitScreenState extends State<AdminMinLimitScreen> {
             Expanded(
               child:
                   filteredProducts.isEmpty
-                      ? Center(child: Text("Ürün bulunamadı."))
+                      ? Center(
+                        child: Text(
+                          _searchQuery.length < 5
+                              ? "En az 5 karakter girin veya barkod okutun."
+                              : "Ürün bulunamadı.",
+                        ),
+                      )
                       : ListView.builder(
                         itemCount: filteredProducts.length,
                         itemBuilder: (context, index) {

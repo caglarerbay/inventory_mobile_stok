@@ -54,5 +54,6 @@ com.example.inventory_mobile.app-debug-52 C:\Users\LENOVO\stokproje\inventory_mo
 com.example.inventory_mobile.app-debug-53 C:\Users\LENOVO\stokproje\inventory_mobile\build\barcode_scan2\intermediates\packaged_res\debug\packageDebugResources
 com.example.inventory_mobile.app-debug-54 C:\Users\LENOVO\stokproje\inventory_mobile\build\firebase_core\intermediates\packaged_res\debug\packageDebugResources
 com.example.inventory_mobile.app-debug-55 C:\Users\LENOVO\stokproje\inventory_mobile\build\firebase_messaging\intermediates\packaged_res\debug\packageDebugResources
-com.example.inventory_mobile.app-debug-56 C:\Users\LENOVO\stokproje\inventory_mobile\build\flutter_local_notifications\intermediates\packaged_res\debug\packageDebugResources
-com.example.inventory_mobile.app-debug-57 C:\Users\LENOVO\stokproje\inventory_mobile\build\shared_preferences_android\intermediates\packaged_res\debug\packageDebugResources
+com.example.inventory_mobile.app-debug-56 C:\Users\LENOVO\stokproje\inventory_mobile\build\flutter_keyboard_visibility\intermediates\packaged_res\debug\packageDebugResources
+com.example.inventory_mobile.app-debug-57 C:\Users\LENOVO\stokproje\inventory_mobile\build\flutter_local_notifications\intermediates\packaged_res\debug\packageDebugResources
+com.example.inventory_mobile.app-debug-58 C:\Users\LENOVO\stokproje\inventory_mobile\build\shared_preferences_android\intermediates\packaged_res\debug\packageDebugResources

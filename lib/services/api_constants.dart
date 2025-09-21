@@ -1,5 +1,4 @@
 class ApiConstants {
-  // AWS instance'ınızın public DNS veya IP adresine göre güncellendi:
-  static const String baseUrl =
-      "http://nukstoktakip.eu-north-1.elasticbeanstalk.com";
+  // App Engine üzerindeki üretim backend URL’in:
+  static const String baseUrl = 'https://nukstoktakip25.appspot.com';
 }

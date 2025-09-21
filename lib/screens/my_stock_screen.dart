@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_constants.dart';
 
 class MyStockScreen extends StatefulWidget {
@@ -11,7 +12,6 @@ class MyStockScreen extends StatefulWidget {
 class _MyStockScreenState extends State<MyStockScreen> {
   String? _token;
   bool _isStaff = false;
-
   List<dynamic> _myStocks = [];
   String? _errorMessage;
   bool _isLoading = false;
@@ -19,24 +19,24 @@ class _MyStockScreenState extends State<MyStockScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is Map) {
         _token = args["token"];
         _isStaff = args["staff_flag"] ?? false;
-        _fetchMyStocks();
-      } else {
-        setState(() {
-          _errorMessage = "Token alınamadı, lütfen tekrar giriş yapın.";
-        });
       }
+      if (_token == null || _token!.isEmpty) {
+        _token = prefs.getString('token');
+      }
+      await _fetchMyStocks();
     });
   }
 
   Future<void> _fetchMyStocks() async {
     if (_token == null || _token!.isEmpty) {
       setState(() {
-        _errorMessage = "Token yok, kendi stoğunuzu çekemiyoruz.";
+        _errorMessage = "Token yok, stoğunuzu çekemiyoruz.";
       });
       return;
     }
@@ -44,26 +44,17 @@ class _MyStockScreenState extends State<MyStockScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-
     final url = Uri.parse('${ApiConstants.baseUrl}/api/my_stock/');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Token $_token',
     };
-
     try {
       final response = await http.get(url, headers: headers);
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
-        final List<dynamic> stocks = data["stocks"] ?? [];
-
-        // 0 adet olanları ayıklıyoruz
-        final filtered =
-            stocks.where((item) {
-              final qty = item["quantity"] ?? 0;
-              return qty > 0;
-            }).toList();
-
+        final stocks = List<dynamic>.from(data["stocks"] ?? []);
+        final filtered = stocks.where((i) => (i["quantity"] ?? 0) > 0).toList();
         setState(() {
           _myStocks = filtered;
           _isLoading = false;
@@ -83,15 +74,7 @@ class _MyStockScreenState extends State<MyStockScreen> {
     }
   }
 
-  // Depoya Bırak fonksiyonu
   Future<void> _returnProduct(int productId, int quantity) async {
-    if (_token == null || _token!.isEmpty) {
-      setState(() {
-        _errorMessage = "Token yok, bırakamıyoruz.";
-      });
-      return;
-    }
-
     final url = Uri.parse(
       '${ApiConstants.baseUrl}/api/return_product/$productId/',
     );
@@ -99,7 +82,6 @@ class _MyStockScreenState extends State<MyStockScreen> {
       'Content-Type': 'application/json',
       'Authorization': 'Token $_token',
     };
-
     try {
       final response = await http.post(
         url,
@@ -107,9 +89,10 @@ class _MyStockScreenState extends State<MyStockScreen> {
         body: json.encode({'quantity': quantity}),
       );
       if (response.statusCode == 200) {
-        print('Depoya Bırakma başarılı');
-        // Stoğu yenile
-        _fetchMyStocks();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Depoya iade başarılı')));
+        await _fetchMyStocks();
       } else {
         final body = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -124,30 +107,28 @@ class _MyStockScreenState extends State<MyStockScreen> {
   }
 
   void _showReturnDialog(int productId) {
-    int _tempQty = 1;
+    int tempQty = 1;
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            title: Text('Depoya Bırak'),
+            title: const Text('Depoya Bırak'),
             content: TextField(
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Miktar'),
-              onChanged: (val) {
-                _tempQty = int.tryParse(val) ?? 1;
-              },
+              decoration: const InputDecoration(labelText: 'Miktar'),
+              onChanged: (val) => tempQty = int.tryParse(val) ?? 1,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('İptal'),
+                child: const Text('İptal'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  _returnProduct(productId, _tempQty);
+                  _returnProduct(productId, tempQty);
                 },
-                child: Text('Onayla'),
+                child: const Text('Onayla'),
               ),
             ],
           ),
@@ -157,33 +138,40 @@ class _MyStockScreenState extends State<MyStockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Kişisel Stok')),
+      appBar: AppBar(title: const Text('Kişisel Stok')),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : _errorMessage != null
               ? Center(
                 child: Text(
                   _errorMessage!,
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                 ),
               )
               : _myStocks.isEmpty
-              ? Center(child: Text('Stokta ürün bulunamadı (veya 0 adet).'))
+              ? const Center(child: Text('Stokta ürün bulunamadı.'))
               : ListView.builder(
                 itemCount: _myStocks.length,
-                itemBuilder: (context, index) {
-                  final item = _myStocks[index];
-                  final productId = item["product_id"];
-                  final productName = item["product_name"];
-                  final partCode = item["part_code"];
+                itemBuilder: (ctx, i) {
+                  final item = _myStocks[i];
+                  final productId = item["product_id"] as int;
+                  final name = item["product_name"];
+                  final code = item["part_code"];
                   final qty = item["quantity"];
-
+                  final cabinet = item["cabinet"] ?? '-';
+                  final shelf = item["shelf"] ?? '-';
                   return ListTile(
-                    title: Text('$productName (Kod: $partCode)'),
-                    subtitle: Text('Miktar: $qty'),
+                    title: Text('$name (Kod: $code)'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Miktar: $qty'),
+                        Text('Dolap: $cabinet   •   Raf: $shelf'),
+                      ],
+                    ),
                     trailing: IconButton(
-                      icon: Icon(Icons.upload),
+                      icon: const Icon(Icons.upload),
                       tooltip: 'Depoya Bırak',
                       onPressed: () => _showReturnDialog(productId),
                     ),

@@ -1,7 +1,10 @@
+// lib/screens/notification_history_screen.dart
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:inventory_mobile/services/api_constants.dart';
 
 class NotificationHistoryScreen extends StatefulWidget {
   @override
@@ -12,21 +15,28 @@ class NotificationHistoryScreen extends StatefulWidget {
 class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> {
   List notifications = [];
   bool isLoading = true;
+  bool isStaff = false;
 
   @override
   void initState() {
     super.initState();
+    _loadPrefs();
     fetchNotifications();
   }
 
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isStaff = prefs.getBool('staffFlag') ?? false;
+    });
+  }
+
   Future<void> fetchNotifications() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString(
-      'token',
-    ); // Token SharedPreferences'tan çekiliyor
-    final url = Uri.parse(
-      "http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/notification_history/",
-    );
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? "";
+
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/notification_history/');
+
     final response = await http.get(
       url,
       headers: {
@@ -34,10 +44,10 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> {
         "Authorization": "Token $token",
       },
     );
+
     if (response.statusCode == 200) {
-      // Burada response.body yerine response.bodyBytes kullanıyoruz:
       final body = utf8.decode(response.bodyBytes);
-      final data = jsonDecode(body);
+      final data = json.decode(body);
       setState(() {
         notifications = data["notifications"];
         isLoading = false;
@@ -46,7 +56,36 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> {
       setState(() {
         isLoading = false;
       });
-      // Hata durumunda uygun bir mesaj gösterebilirsin.
+    }
+  }
+
+  Future<void> _deleteNotification(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? "";
+    final notif = notifications[index];
+    final url = Uri.parse(
+      '${ApiConstants.baseUrl}/api/notification_history/${notif["id"]}/',
+    );
+
+    final response = await http.delete(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Token $token",
+      },
+    );
+
+    if (response.statusCode == 204) {
+      setState(() {
+        notifications.removeAt(index);
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Bildirim silindi.')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Silme hatası: ${response.statusCode}')),
+      );
     }
   }
 
@@ -65,7 +104,6 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> {
                     title: Text(notification["title"]),
                     subtitle: Text(notification["sent_at"]),
                     onTap: () {
-                      // Bildirim detay ekranına yönlendir
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -76,6 +114,15 @@ class _NotificationHistoryScreenState extends State<NotificationHistoryScreen> {
                         ),
                       );
                     },
+                    onLongPress:
+                        isStaff ? () => _deleteNotification(index) : null,
+                    trailing:
+                        isStaff
+                            ? IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => _deleteNotification(index),
+                            )
+                            : null,
                   );
                 },
               ),
@@ -92,7 +139,7 @@ class NotificationDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Bildirim Detayı")),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

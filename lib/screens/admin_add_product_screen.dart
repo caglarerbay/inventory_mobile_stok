@@ -13,6 +13,8 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
   String _partCode = '';
   String _name = '';
   int _quantity = 0;
+  String _cabinet = ''; // Yeni eklendi
+  String _shelf = ''; // Yeni eklendi
   String? _errorMessage;
 
   // BURADA TOKEN TUTACAĞIZ
@@ -63,6 +65,8 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
           'part_code': _partCode,
           'name': _name,
           'quantity': _quantity,
+          'cabinet': _cabinet, // Yeni eklendi
+          'shelf': _shelf, // Yeni eklendi
         }),
       );
       if (response.statusCode == 200) {
@@ -111,6 +115,19 @@ class _AdminAddProductScreenState extends State<AdminAddProductScreen> {
                 validator: (val) => val!.isEmpty ? 'Miktar zorunlu' : null,
                 onSaved: (val) => _quantity = int.tryParse(val!) ?? 0,
               ),
+
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Dolap Numarası'),
+                validator:
+                    (val) => val!.isEmpty ? 'Dolap numarası zorunlu' : null,
+                onSaved: (val) => _cabinet = val!.trim(),
+              ), // Yeni eklendi
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Raf Numarası'),
+                validator:
+                    (val) => val!.isEmpty ? 'Raf numarası zorunlu' : null,
+                onSaved: (val) => _shelf = val!.trim(),
+              ), // Yeni eklendi
               SizedBox(height: 16),
               ElevatedButton(onPressed: _submit, child: Text('Kaydet')),
             ],

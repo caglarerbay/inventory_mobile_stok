@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:inventory_mobile/services/api_constants.dart'; // <<< eklendi
 
 class PushNotificationScreen extends StatefulWidget {
   @override
@@ -30,15 +31,14 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
 
     // Sunucunuzdaki bildirim endpoint'ini kullanın.
     final url = Uri.parse(
-      "http://nukstoktakip.eu-north-1.elasticbeanstalk.com/api/send_push_notification/",
-    );
+      '${ApiConstants.baseUrl}/api/send_push_notification/',
+    ); // <<< güncellendi
 
     try {
       final response = await http.post(
         url,
         headers: {
           "Content-Type": "application/json",
-          // Oturum bilgilerini Authorization header'ıyla gönderiyoruz.
           "Authorization": "Token $token",
         },
         body: jsonEncode({"title": _title, "message": _message}),
@@ -49,8 +49,7 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
         if (response.statusCode == 200) {
           _resultMessage = "Bildirim gönderildi.";
         } else {
-          _resultMessage =
-              "Hata: ${response.statusCode} - ${response.body.toString()}";
+          _resultMessage = "Hata: ${response.statusCode} - ${response.body}";
         }
       });
     } catch (e) {
