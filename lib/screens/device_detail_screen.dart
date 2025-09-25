@@ -5,6 +5,7 @@ import '../models/device_detail.dart';
 import '../services/device_service.dart';
 import '../services/installation_service.dart';
 import '../screens/installation_history_screen.dart';
+import 'device_used_parts_screen.dart';
 
 class DeviceDetailScreen extends StatefulWidget {
   final int deviceId;
@@ -163,13 +164,11 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                 ],
 
                 const SizedBox(height: 24),
-                // ——— Bakım / Arıza ———
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.build),
-                      label: const Text('Bakımlar'),
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.pushNamed(
                           context,
@@ -177,15 +176,30 @@ class _DeviceDetailScreenState extends State<DeviceDetailScreen> {
                           arguments: widget.deviceId,
                         );
                       },
+                      child: const Text('Bakımlar'),
                     ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.report_problem),
-                      label: const Text('Arızalar'),
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.pushNamed(
                           context,
                           '/devices/fault/list',
                           arguments: widget.deviceId,
+                        );
+                      },
+                      child: const Text('Arızalar'),
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.build, color: Colors.blue),
+                      label: const Text('Kullanılan Parçalar'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => DeviceUsedPartsScreen(
+                                  deviceId: widget.deviceId,
+                                ),
+                          ),
                         );
                       },
                     ),

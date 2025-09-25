@@ -8,6 +8,7 @@ class DevicePartUsage {
   final int quantity;
   final String userUsername;
   final DateTime usedAt;
+  final double? productPrice; // ✅ yeni alan
 
   DevicePartUsage({
     required this.id,
@@ -19,6 +20,7 @@ class DevicePartUsage {
     required this.quantity,
     required this.userUsername,
     required this.usedAt,
+    this.productPrice, // ✅ constructor'a eklendi
   });
 
   factory DevicePartUsage.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,10 @@ class DevicePartUsage {
       quantity: json['quantity'],
       userUsername: json['user_username'] ?? '',
       usedAt: DateTime.parse(json['used_at']),
+      productPrice:
+          (json['product_price'] != null)
+              ? double.tryParse(json['product_price'].toString())
+              : null, // ✅ fiyat alanı JSON'dan okunuyor
     );
   }
 }

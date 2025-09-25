@@ -1,57 +1,82 @@
 import 'package:flutter/material.dart';
-import '../models/device_part_usage.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../services/device_part_usage_service.dart';
+import '../models/device_part_usage.dart';
 
 class DeviceUsedPartsScreen extends StatefulWidget {
   final int deviceId;
-  final String token; // token da ekleyelim
-  const DeviceUsedPartsScreen({
-    Key? key,
-    required this.deviceId,
-    required this.token,
-  }) : super(key: key);
+
+  const DeviceUsedPartsScreen({Key? key, required this.deviceId})
+    : super(key: key);
 
   @override
-  _DeviceUsedPartsScreenState createState() => _DeviceUsedPartsScreenState();
+  State<DeviceUsedPartsScreen> createState() => _DeviceUsedPartsScreenState();
 }
 
 class _DeviceUsedPartsScreenState extends State<DeviceUsedPartsScreen> {
-  late Future<List<DevicePartUsage>> _futureParts;
+  late Future<List<DevicePartUsage>> _futureUsage;
 
   @override
   void initState() {
     super.initState();
-    _futureParts = DevicePartUsageService().fetchUsageByDevice(
-      widget.deviceId,
-      widget.token,
-    );
+    _futureUsage = _loadUsage();
+  }
+
+  Future<List<DevicePartUsage>> _loadUsage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+    final service = DevicePartUsageService();
+    return service.fetchUsageByDevice(widget.deviceId, token);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Kullanılan Parçalar')),
+      appBar: AppBar(title: const Text("Kullanılan Parçalar")),
       body: FutureBuilder<List<DevicePartUsage>>(
-        future: _futureParts,
+        future: _futureUsage,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Hata: ${snapshot.error}'));
+            return Center(child: Text("Hata: ${snapshot.error}"));
           }
-          final parts = snapshot.data ?? [];
-          if (parts.isEmpty) {
-            return Center(child: Text('Bu cihaza ait kullanım kaydı yok.'));
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text("Bu cihazda henüz parça kullanılmamış."),
+            );
           }
+
+          final usageList = snapshot.data!;
           return ListView.builder(
-            itemCount: parts.length,
-            itemBuilder: (ctx, i) {
-              final p = parts[i];
-              return ListTile(
-                title: Text('${p.productName} (Kod: ${p.productCode})'),
-                subtitle: Text(
-                  'Miktar: ${p.quantity}\nKullanıcı: ${p.userUsername}\nTarih: ${p.usedAt.toString().substring(0, 16)}',
+            itemCount: usageList.length,
+            itemBuilder: (context, index) {
+              final usage = usageList[index];
+              final dateStr = DateFormat(
+                'dd.MM.yyyy HH:mm',
+              ).format(usage.usedAt);
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: ListTile(
+                  title: Text(
+                    "${usage.productName} (${usage.productCode})",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Kullanan: ${usage.userUsername}"),
+                      Text("Tarih: $dateStr"),
+                      Text("Adet: ${usage.quantity}"),
+                      Text(
+                        "Fiyat: ${usage.productPrice != null ? usage.productPrice.toString() + ' €' : '-'}",
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

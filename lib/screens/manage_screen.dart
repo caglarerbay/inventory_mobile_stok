@@ -123,12 +123,18 @@ class _ManageScreenState extends State<ManageScreen> {
             ),
             SizedBox(height: 12),
             ElevatedButton(
-              onPressed:
-                  () => Navigator.pushNamed(
-                    context,
-                    '/admin_panel',
-                    arguments: args,
-                  ),
+              onPressed: () {
+                if (_isStaff) {
+                  Navigator.pushNamed(context, '/admin_panel', arguments: args);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('❌ Yetkiniz yoktur'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
               child: Text('Admin Paneli'),
             ),
           ],
